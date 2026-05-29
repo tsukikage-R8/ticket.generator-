@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+/>
+<title>月影祭 Ticket Maker</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:sans-serif;
+background:linear-gradient(180deg,#0f172a,#312e81);
+min-height:100vh;
+padding:16px;
+display:flex;
+flex-direction:column;
+align-items:center;
+color:#fff;
+}
+
+.ticket-wrap{
+width:100%;
+max-width:1172px;
+margin-bottom:20px;
+}
+
+canvas{
+width:100%;
+height:auto;
+display:block;
+border-radius:18px;
+}
+
+.panel{
+width:100%;
+max-width:560px;
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(12px);
+padding:20px;
+border-radius:18px;
+}
+
+label{
+display:block;
+margin-bottom:8px;
+font-size:14px;
+color:white;
+}
+
+input,textarea{
+width:100%;
+padding:14px;
+font-size:16px;
+border:none;
+border-radius:12px;
+margin-bottom:18px;
+}
+
+textarea{
+resize:none;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:bold;
+background:linear-gradient(90deg,#7c3aed,#4f46e5);
+color:white;
+cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<button
+class="official-site-btn"
+onclick="window.open('https://www.jutoku.ed.jp/tsukikage2026/','_blank')"
+style="
+position:fixed;
+top:16px;
+left:16px;
+z-index:9999;
+
+width:fit-content;
+display:inline-flex;
+
+padding:8px 12px;
+
+font-size:12px;
+line-height:1;
+
+white-space:nowrap;
+
+flex:none;
+"
+>
+月影祭公式サイトへ
+</button>
+  
+<div class="ticket-wrap">
+<canvas id="ticket" width="1172" height="376"></canvas>
+</div>
+
+<div class="panel">
+
+<label>名前</label>
+<input
+id="name"
+placeholder="ピッパ"
+oninput="generate()"
+/>
+
+<label>メッセージ</label>
+<textarea
+id="message"
+rows="3"
+placeholder="みんなと会えるのを楽しみにしてるよ！"
+oninput="generate()"
+></textarea>
+
+<button onclick="downloadTicket()">画像を保存</button>
+
+</div>
+
+<script>
+const canvas = document.getElementById("ticket");
+const ctx = canvas.getContext("2d");
+
+const bg = new Image();
+bg.crossOrigin = "anonymous";
+bg.src = "https://i.imgur.com/DMl00oS.png";
+
+bg.onload = generate;
+
+function generate(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.drawImage(bg,0,0,canvas.width,canvas.height);
+
+const name =
+document.getElementById("name").value || "";
+
+const message =
+document.getElementById("message").value || "";
+
+ctx.fillStyle = "#ffffff";
+
+ctx.textAlign = "center";
+
+ctx.font =
+'30px "Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif';
+
+ctx.fillText(
+name,
+550,
+220
+);
+
+ctx.textAlign = "left";
+
+ctx.font =
+'28px "Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif';
+
+wrapText(
+message,
+canvas.width / 2 -100 ,
+260,
+500,
+520,
+42
+);
+}
+
+function wrapText(text, x, y, maxWidth, maxLines, lineHeight) {
+  ctx.textAlign = "center";
+
+  const paragraphs = text.split("\n");
+  let lineCount = 0;
+
+  for (let p = 0; p < paragraphs.length; p++) {
+    const chars = paragraphs[p].split("");
+    let line = "";
+
+    for (let n = 0; n < chars.length; n++) {
+      const testLine = line + chars[n];
+      const testWidth = ctx.measureText(testLine).width;
+
+      if (testWidth > maxWidth && n > 0) {
+        ctx.fillText(line, x, y + lineCount * lineHeight);
+        line = chars[n];
+        lineCount++;
+
+        if (lineCount >= maxLines) return;
+      } else {
+        line = testLine;
+      }
+    }
+
+    ctx.fillText(line, x, y + lineCount * lineHeight);
+    lineCount++;
+
+    if (lineCount >= maxLines) return;
+  }
+}
+
+function downloadTicket(){
+const link=document.createElement("a");
+link.download="ticket.png";
+link.href=canvas.toDataURL("image/png");
+link.click();
+}
+</script>
+
+<p style="text-align: center;"><small>当サイトで作成した画像で会場に入場することはできません。当日のチケットの有無は樹徳高校公式サイトや月影祭公式サイトよりご確認ください。
+券面に記載された内容はこの画像を生成したユーザーが入力したものであり、本アプリ制作者は一切関知しておりません。<br>
+©月影祭実行委員会</small></p>
+  
+</body>
+</html>
