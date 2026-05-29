@@ -79,6 +79,54 @@ background:linear-gradient(90deg,#7c3aed,#4f46e5);
 color:white;
 cursor:pointer;
 }
+
+.ios-save-modal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.45);
+}
+
+.ios-save-box{
+  width:min(92%,420px);
+  background:#fff;
+  border-radius:24px;
+  padding:24px 20px;
+  text-align:center;
+}
+
+.ios-save-guide-image{
+  width:100%;
+  max-width:320px;
+  max-height:360px;
+  object-fit:contain;
+  display:block;
+  margin:0 auto 18px;
+  border-radius:14px;
+}
+
+.ios-save-text{
+  color:#222;
+  font-size:16px;
+  line-height:1.7;
+  margin-bottom:18px;
+}
+
+.ios-save-ok-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:999px;
+  background:#6b63ff;
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+}
+  
 </style>
 </head>
 <body>
@@ -129,7 +177,9 @@ placeholder="みんなと会えるのを楽しみにしてるよ！"
 oninput="generate()"
 ></textarea>
 
-<button onclick="downloadTicket()">画像を保存</button>
+<button onclick="downloadTicket()">
+  画像をダウンロード
+</button>
 
 </div>
 
@@ -225,6 +275,58 @@ link.click();
 <p style="text-align: center;"><small>当サイトで作成した画像で会場に入場することはできません。当日のチケットの有無は樹徳高校公式サイトや月影祭公式サイトよりご確認ください。<br>
 券面に記載された内容はこの画像を生成したユーザーが入力したものであり、本アプリ制作者は一切関知しておりません。<br>
 ©月影祭実行委員会</small></p>
+
+<div id="iosSaveModal" class="ios-save-modal">
+  <div class="ios-save-box">
+
+    <img
+      src="ここに画像URL"
+      alt="保存方法"
+      class="ios-save-guide-image"
+    >
+
+    <p class="ios-save-text">
+      チケットを保存するには、この後の画面で<br>
+      「画像を保存」をタップして写真ライブラリに保存してください。
+    </p>
+
+    <button
+      id="iosSaveOkBtn"
+      class="ios-save-ok-btn"
+    >
+      わかった
+    </button>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const ua = navigator.userAgent;
+
+  const isIOS =
+    /iPhone|iPad|iPod/.test(ua);
+
+  const isAndroid =
+    /Android/.test(ua);
+
+  const modal =
+    document.getElementById("iosSaveModal");
+
+  const closeBtn =
+    document.getElementById("iosSaveOkBtn");
+
+  if (isIOS || isAndroid) {
+    modal.style.display = "flex";
+  }
+
+  closeBtn.addEventListener("click", function () {
+    modal.style.display = "none";
+  });
+
+});
+</script>
   
 </body>
 </html>
