@@ -194,65 +194,57 @@ bg.src = "https://i.imgur.com/DMl00oS.png";
 bg.onload = generate;
 
 function generate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(bg,0,0,canvas.width,canvas.height);
 
-ctx.clearRect(0,0,canvas.width,canvas.height);
-ctx.drawImage(bg,0,0,canvas.width,canvas.height);
+  const name =
+    document.getElementById("name").value || "";
 
-const name =
-document.getElementById("name").value || "";
+  const message =
+    document.getElementById("message").value || "";
 
-const message =
-document.getElementById("message").value || "";
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
 
-ctx.fillStyle = "#ffffff";
+  ctx.font =
+    '30px "Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif';
 
-ctx.textAlign = "center";
+  ctx.fillText(name, 550, 220);
 
-ctx.font =
-'30px "Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif';
+  ctx.font =
+    '28px "Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif';
 
-ctx.fillText(
-name,
-550,
-220
-);
-
-ctx.textAlign = "left";
-
-ctx.font =
-'28px "Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif';
-
-wrapText(
-message,
-canvas.width / 2 -100 ,
-260,
-500,
-520,
-42
-);
+  wrapText(
+    message,
+    canvas.width / 2 -100,
+    260,
+    500,
+    520,
+    42
+  );
 }
 
-function wrapText(text, x, y, maxWidth, maxLines, lineHeight) {
+function wrapText(text, x, y, maxWidth, maxLines, lineHeight){
   ctx.textAlign = "center";
 
   const paragraphs = text.split("\n");
   let lineCount = 0;
 
-  for (let p = 0; p < paragraphs.length; p++) {
+  for(let p=0; p<paragraphs.length; p++){
     const chars = paragraphs[p].split("");
     let line = "";
 
-    for (let n = 0; n < chars.length; n++) {
+    for(let n=0; n<chars.length; n++){
       const testLine = line + chars[n];
       const testWidth = ctx.measureText(testLine).width;
 
-      if (testWidth > maxWidth && n > 0) {
+      if(testWidth > maxWidth && n > 0){
         ctx.fillText(line, x, y + lineCount * lineHeight);
         line = chars[n];
         lineCount++;
 
-        if (lineCount >= maxLines) return;
-      } else {
+        if(lineCount >= maxLines) return;
+      }else{
         line = testLine;
       }
     }
@@ -260,16 +252,86 @@ function wrapText(text, x, y, maxWidth, maxLines, lineHeight) {
     ctx.fillText(line, x, y + lineCount * lineHeight);
     lineCount++;
 
-    if (lineCount >= maxLines) return;
+    if(lineCount >= maxLines) return;
   }
 }
 
-function downloadTicket(){
-const link=document.createElement("a");
-link.download="ticket.png";
-link.href=canvas.toDataURL("image/png");
-link.click();
+async function downloadTicket(){
+
+  const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (
+      navigator.platform === "MacIntel" &&
+      navigator.maxTouchPoints > 1
+    );
+
+  if(isIOS){
+    document.getElementById("iosSaveModal").style.display = "flex";
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.download = "tsukikage-ticket.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  const okBtn =
+    document.getElementById("iosSaveOkBtn");
+
+  if(!okBtn) return;
+
+  okBtn.addEventListener(
+    "click",
+    async function(){
+
+      document.getElementById(
+        "iosSaveModal"
+      ).style.display = "none";
+
+      canvas.toBlob(async function(blob){
+
+        const file = new File(
+          [blob],
+          "tsukikage-ticket.png",
+          {
+            type:"image/png"
+          }
+        );
+
+        try{
+
+          if(
+            navigator.canShare &&
+            navigator.canShare({ files:[file] })
+          ){
+            await navigator.share({
+              files:[file],
+              title:"月影祭チケット"
+            });
+          }else{
+
+            const url =
+              URL.createObjectURL(blob);
+
+            window.open(
+              url,
+              "_blank"
+            );
+          }
+
+        }catch(e){
+          console.log(e);
+        }
+
+      },"image/png");
+
+    }
+  );
+
+});
 </script>
 
 <p style="text-align: center;"><small>当サイトで作成した画像で会場に入場することはできません。当日のチケットの有無は樹徳高校公式サイトや月影祭公式サイトよりご確認ください。<br>
@@ -300,33 +362,7 @@ link.click();
   </div>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
 
-  const ua = navigator.userAgent;
-
-  const isIOS =
-    /iPhone|iPad|iPod/.test(ua);
-
-  const isAndroid =
-    /Android/.test(ua);
-
-  const modal =
-    document.getElementById("iosSaveModal");
-
-  const closeBtn =
-    document.getElementById("iosSaveOkBtn");
-
-  if (isIOS || isAndroid) {
-    modal.style.display = "flex";
-  }
-
-  closeBtn.addEventListener("click", function () {
-    modal.style.display = "none";
-  });
-
-});
-</script>
   
 </body>
 </html>
